@@ -1,0 +1,122 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+
+pacman::p_load("tidyverse","lme4")
+
+```
+
+
+
+
+```{r}
+## generate one response, two predictors and one factor (random effect)
+set.seed(101)
+resp <- runif(100,1,100)
+pred1<- rnorm(100, 
+           mean=rep(resp[1:50],2)+rep(c(-10,20),each=50),
+           sd=rep(c(10,5),each=50))
+pred2<- rnorm(100, resp-10, 10)
+```
+
+
+```{r}
+RF1<-gl(10,10)
+d <- data.frame(resp,pred1,pred2,RF1)
+
+#lmer
+library(lme4)
+mod <- lmer(resp ~ pred1 + pred2 + (1|RF1),data=d)
+```
+
+
+```{r}
+
+nd <- with(d,
+           rbind(data.frame(expand.grid(RF1=levels(RF1),
+                      pred1=seq(min(pred1),max(pred1),length=51)),
+                      pred2=mean(pred2),focus="pred1"),
+                 data.frame(expand.grid(RF1=levels(RF1),
+                      pred2=seq(min(pred2),max(pred2),length=51)),
+                      pred1=mean(pred1),focus="pred2")))
+nd$val <- with(nd,pred1[focus=="pred1"],pred2[focus=="pred2"])
+pframe <- data.frame(nd,resp=predict(mod,newdata=nd))
+library(ggplot2)
+ggplot(pframe,aes(x=val,y=resp,colour=RF1))+geom_line()+
+         facet_wrap(~focus,scale="free")
+
+```
+
+
+
+```{r}
+
+nd <- with(d,
+           data.frame(expand.grid(RF1=levels(RF1),
+                      pred1=seq(min(pred1),max(pred1),length=51),
+                      pred2=seq(-20,100,by=40))))
+pframe <- data.frame(nd,resp=predict(mod,newdata=nd))
+ggplot(pframe,aes(x=pred1,y=resp,colour=RF1))+geom_line()+
+         facet_wrap(~pred2,nrow=1)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
