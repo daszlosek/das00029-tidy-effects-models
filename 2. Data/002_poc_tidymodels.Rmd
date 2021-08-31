@@ -1,0 +1,58 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+
+pacman::p_load("tidyverse","lme4")
+
+sleepstudy <- lme4::sleepstudy
+
+```
+
+
+```{r}
+
+install.packages("Rtools")
+
+devtools::install_github("tidymodels/multilevelmod", force =T)
+
+```
+
+
+
+```{r}
+install.packages("multilevelmod")
+library(multilevelmod)
+#> Loading required package: parsnip
+data(sleepstudy, package = "lme4")
+
+mixed_model_spec <- linear_reg() %>% set_engine("lmer")
+
+mixed_model_fit <- 
+  mixed_model_spec %>% 
+  fit(Reaction ~ Days + (Days | Subject), data = sleepstudy)
+
+mixed_model_fit
+#> parsnip model object
+#> 
+#> Fit time:  57ms 
+#> Linear mixed model fit by REML ['lmerMod']
+#> Formula: Reaction ~ Days + (Days | Subject)
+#>    Data: data
+#> REML criterion at convergence: 1743.628
+#> Random effects:
+#>  Groups   Name        Std.Dev. Corr
+#>  Subject  (Intercept) 24.741       
+#>           Days         5.922   0.07
+#>  Residual             25.592       
+#> Number of obs: 180, groups:  Subject, 18
+#> Fixed Effects:
+#> (Intercept)         Days  
+#>      251.41        10.47
+
+
+```
+
