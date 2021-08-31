@@ -8,6 +8,8 @@ output: html_notebook
 
 pacman::p_load("tidyverse","lme4")
 
+library(multilevelmod)
+
 sleepstudy <- lme4::sleepstudy
 
 ```
@@ -15,25 +17,31 @@ sleepstudy <- lme4::sleepstudy
 
 ```{r}
 
-install.packages("Rtools")
-
-devtools::install_github("tidymodels/multilevelmod", force =T)
+# install.packages("Rtools")
+# 
+# devtools::install_github("tidymodels/multilevelmod", force =T)
 
 ```
 
 
 
 ```{r}
-install.packages("multilevelmod")
-library(multilevelmod)
+# https://github.com/tidymodels/multilevelmod
+
 #> Loading required package: parsnip
 data(sleepstudy, package = "lme4")
 
+
+
 mixed_model_spec <- linear_reg() %>% set_engine("lmer")
+
+
 
 mixed_model_fit <- 
   mixed_model_spec %>% 
   fit(Reaction ~ Days + (Days | Subject), data = sleepstudy)
+
+
 
 mixed_model_fit
 #> parsnip model object

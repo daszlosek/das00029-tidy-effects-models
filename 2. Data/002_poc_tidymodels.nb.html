@@ -217,9 +217,11 @@ pre code {
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5wYWNtYW46OnBfbG9hZChcInRpZHl2ZXJzZVwiLFwibG1lNFwiKVxuXG5zbGVlcHN0dWR5IDwtIGxtZTQ6OnNsZWVwc3R1ZHlcblxuYGBgIn0= -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5wYWNtYW46OnBfbG9hZChcInRpZHl2ZXJzZVwiLFwibG1lNFwiKVxuXG5saWJyYXJ5KG11bHRpbGV2ZWxtb2QpXG5cbnNsZWVwc3R1ZHkgPC0gbG1lNDo6c2xlZXBzdHVkeVxuXG5gYGAifQ== -->
 <pre class="r"><code>
 pacman::p_load(&quot;tidyverse&quot;,&quot;lme4&quot;)
+
+library(multilevelmod)
 
 sleepstudy &lt;- lme4::sleepstudy
 </code></pre>
@@ -352,19 +354,33 @@ The downloaded binary packages are in
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShtdWx0aWxldmVsbW9kKVxuXG5gYGAifQ== -->
-<pre class="r"><code>library(multilevelmod)
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubWl4ZWRfbW9kZWxfZml0XG5cbmBgYCJ9 -->
+<pre class="r"><code>mixed_model_fit
 </code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3IgaW4gbGlicmFyeShtdWx0aWxldmVsbW9kKSA6IFxuICB0aGVyZSBpcyBubyBwYWNrYWdlIGNhbGxlZCDigJhtdWx0aWxldmVsbW9k4oCZXG4ifQ== -->
-<pre><code>Error in library(multilevelmod) : 
-  there is no package called ‘multilevelmod’</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoicGFyc25pcCBtb2RlbCBvYmplY3RcblxuRml0IHRpbWU6ICAxMDFtcyBcbkxpbmVhciBtaXhlZCBtb2RlbCBmaXQgYnkgUkVNTCBbJ2xtZXJNb2QnXVxuRm9ybXVsYTogUmVhY3Rpb24gfiBEYXlzICsgKERheXMgfCBTdWJqZWN0KVxuICAgRGF0YTogZGF0YVxuUkVNTCBjcml0ZXJpb24gYXQgY29udmVyZ2VuY2U6IDE3NDMuNjI4XG5SYW5kb20gZWZmZWN0czpcbiBHcm91cHMgICBOYW1lICAgICAgICBTdGQuRGV2LiBDb3JyXG4gU3ViamVjdCAgKEludGVyY2VwdCkgMjQuNzQxICAgICAgIFxuICAgICAgICAgIERheXMgICAgICAgICA1LjkyMiAgIDAuMDdcbiBSZXNpZHVhbCAgICAgICAgICAgICAyNS41OTIgICAgICAgXG5OdW1iZXIgb2Ygb2JzOiAxODAsIGdyb3VwczogIFN1YmplY3QsIDE4XG5GaXhlZCBFZmZlY3RzOlxuKEludGVyY2VwdCkgICAgICAgICBEYXlzICBcbiAgICAgMjUxLjQxICAgICAgICAxMC40NyAgXG4ifQ== -->
+<pre><code>parsnip model object
+
+Fit time:  101ms 
+Linear mixed model fit by REML [&#39;lmerMod&#39;]
+Formula: Reaction ~ Days + (Days | Subject)
+   Data: data
+REML criterion at convergence: 1743.628
+Random effects:
+ Groups   Name        Std.Dev. Corr
+ Subject  (Intercept) 24.741       
+          Days         5.922   0.07
+ Residual             25.592       
+Number of obs: 180, groups:  Subject, 18
+Fixed Effects:
+(Intercept)         Days  
+     251.41        10.47  </code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIlIgTm90ZWJvb2siDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQoNCmBgYHtyfQ0KDQpwYWNtYW46OnBfbG9hZCgidGlkeXZlcnNlIiwibG1lNCIpDQoNCnNsZWVwc3R1ZHkgPC0gbG1lNDo6c2xlZXBzdHVkeQ0KDQpgYGANCg0KDQpgYGB7cn0NCg0KaW5zdGFsbC5wYWNrYWdlcygiUnRvb2xzIikNCg0KZGV2dG9vbHM6Omluc3RhbGxfZ2l0aHViKCJ0aWR5bW9kZWxzL211bHRpbGV2ZWxtb2QiLCBmb3JjZSA9VCkNCg0KYGBgDQoNCg0KDQpgYGB7cn0NCmluc3RhbGwucGFja2FnZXMoIm11bHRpbGV2ZWxtb2QiKQ0KbGlicmFyeShtdWx0aWxldmVsbW9kKQ0KIz4gTG9hZGluZyByZXF1aXJlZCBwYWNrYWdlOiBwYXJzbmlwDQpkYXRhKHNsZWVwc3R1ZHksIHBhY2thZ2UgPSAibG1lNCIpDQoNCm1peGVkX21vZGVsX3NwZWMgPC0gbGluZWFyX3JlZygpICU+JSBzZXRfZW5naW5lKCJsbWVyIikNCg0KbWl4ZWRfbW9kZWxfZml0IDwtIA0KICBtaXhlZF9tb2RlbF9zcGVjICU+JSANCiAgZml0KFJlYWN0aW9uIH4gRGF5cyArIChEYXlzIHwgU3ViamVjdCksIGRhdGEgPSBzbGVlcHN0dWR5KQ0KDQptaXhlZF9tb2RlbF9maXQNCiM+IHBhcnNuaXAgbW9kZWwgb2JqZWN0DQojPiANCiM+IEZpdCB0aW1lOiAgNTdtcyANCiM+IExpbmVhciBtaXhlZCBtb2RlbCBmaXQgYnkgUkVNTCBbJ2xtZXJNb2QnXQ0KIz4gRm9ybXVsYTogUmVhY3Rpb24gfiBEYXlzICsgKERheXMgfCBTdWJqZWN0KQ0KIz4gICAgRGF0YTogZGF0YQ0KIz4gUkVNTCBjcml0ZXJpb24gYXQgY29udmVyZ2VuY2U6IDE3NDMuNjI4DQojPiBSYW5kb20gZWZmZWN0czoNCiM+ICBHcm91cHMgICBOYW1lICAgICAgICBTdGQuRGV2LiBDb3JyDQojPiAgU3ViamVjdCAgKEludGVyY2VwdCkgMjQuNzQxICAgICAgIA0KIz4gICAgICAgICAgIERheXMgICAgICAgICA1LjkyMiAgIDAuMDcNCiM+ICBSZXNpZHVhbCAgICAgICAgICAgICAyNS41OTIgICAgICAgDQojPiBOdW1iZXIgb2Ygb2JzOiAxODAsIGdyb3VwczogIFN1YmplY3QsIDE4DQojPiBGaXhlZCBFZmZlY3RzOg0KIz4gKEludGVyY2VwdCkgICAgICAgICBEYXlzICANCiM+ICAgICAgMjUxLjQxICAgICAgICAxMC40Nw0KDQoNCmBgYA0KDQo=</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIlIgTm90ZWJvb2siDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQoNCmBgYHtyfQ0KDQpwYWNtYW46OnBfbG9hZCgidGlkeXZlcnNlIiwibG1lNCIpDQoNCmxpYnJhcnkobXVsdGlsZXZlbG1vZCkNCg0Kc2xlZXBzdHVkeSA8LSBsbWU0OjpzbGVlcHN0dWR5DQoNCmBgYA0KDQoNCmBgYHtyfQ0KDQojIGluc3RhbGwucGFja2FnZXMoIlJ0b29scyIpDQojIA0KIyBkZXZ0b29sczo6aW5zdGFsbF9naXRodWIoInRpZHltb2RlbHMvbXVsdGlsZXZlbG1vZCIsIGZvcmNlID1UKQ0KDQpgYGANCg0KDQoNCmBgYHtyfQ0KIyBodHRwczovL2dpdGh1Yi5jb20vdGlkeW1vZGVscy9tdWx0aWxldmVsbW9kDQoNCiM+IExvYWRpbmcgcmVxdWlyZWQgcGFja2FnZTogcGFyc25pcA0KZGF0YShzbGVlcHN0dWR5LCBwYWNrYWdlID0gImxtZTQiKQ0KDQoNCg0KbWl4ZWRfbW9kZWxfc3BlYyA8LSBsaW5lYXJfcmVnKCkgJT4lIHNldF9lbmdpbmUoImxtZXIiKQ0KDQoNCg0KbWl4ZWRfbW9kZWxfZml0IDwtIA0KICBtaXhlZF9tb2RlbF9zcGVjICU+JSANCiAgZml0KFJlYWN0aW9uIH4gRGF5cyArIChEYXlzIHwgU3ViamVjdCksIGRhdGEgPSBzbGVlcHN0dWR5KQ0KDQoNCg0KbWl4ZWRfbW9kZWxfZml0DQojPiBwYXJzbmlwIG1vZGVsIG9iamVjdA0KIz4gDQojPiBGaXQgdGltZTogIDU3bXMgDQojPiBMaW5lYXIgbWl4ZWQgbW9kZWwgZml0IGJ5IFJFTUwgWydsbWVyTW9kJ10NCiM+IEZvcm11bGE6IFJlYWN0aW9uIH4gRGF5cyArIChEYXlzIHwgU3ViamVjdCkNCiM+ICAgIERhdGE6IGRhdGENCiM+IFJFTUwgY3JpdGVyaW9uIGF0IGNvbnZlcmdlbmNlOiAxNzQzLjYyOA0KIz4gUmFuZG9tIGVmZmVjdHM6DQojPiAgR3JvdXBzICAgTmFtZSAgICAgICAgU3RkLkRldi4gQ29ycg0KIz4gIFN1YmplY3QgIChJbnRlcmNlcHQpIDI0Ljc0MSAgICAgICANCiM+ICAgICAgICAgICBEYXlzICAgICAgICAgNS45MjIgICAwLjA3DQojPiAgUmVzaWR1YWwgICAgICAgICAgICAgMjUuNTkyICAgICAgIA0KIz4gTnVtYmVyIG9mIG9iczogMTgwLCBncm91cHM6ICBTdWJqZWN0LCAxOA0KIz4gRml4ZWQgRWZmZWN0czoNCiM+IChJbnRlcmNlcHQpICAgICAgICAgRGF5cyAgDQojPiAgICAgIDI1MS40MSAgICAgICAgMTAuNDcNCg0KDQpgYGANCg0K</div>
 
 
 
