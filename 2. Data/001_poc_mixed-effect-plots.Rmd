@@ -16,6 +16,8 @@ sleepstudy <- lme4::sleepstudy
 
 mod <- lmer(Reaction ~ Days + (1|Subject),data=sleepstudy)
 
+
+mod
 ```
 
 ```{r}

@@ -6,9 +6,12 @@ output: html_notebook
 
 ```{r}
 
-pacman::p_load("tidyverse","lme4")
 
-library(multilevelmod)
+# devtools::install_github("tidymodels/multilevelmod", force =T)
+library("multilevelmod")
+library("tidymodels")
+library("tidyverse")
+library("lme4")
 
 sleepstudy <- lme4::sleepstudy
 
@@ -25,7 +28,7 @@ sleepstudy <- lme4::sleepstudy
 
 
 
-```{r}
+```{r }
 # https://github.com/tidymodels/multilevelmod
 
 #> Loading required package: parsnip
@@ -42,37 +45,16 @@ mixed_model_fit_tidy <-
   fit(Reaction ~ Days + (1 | Subject), data = sleepstudy)
 
 
-mixed_model_fit_tidy
-
-
-```
-
-
-
-```{r}
-
 expanded_df_tidy <- with(sleepstudy,
                     data.frame(
                       expand.grid(Subject=levels(Subject),
                                   Days=seq(min(Days),max(Days),length=51))))
 
-```
 
-
-```{r}
-
+str(mixed_model_fit_tidy)
 
 predicted_df_tidy <- data.frame(expanded_df_tidy,resp=predict(mixed_model_fit_tidy,new_data=expanded_df_tidy))
 
-
-predicted_df_tidy
-
-```
-
-
-
-
-```{r}
 
 ggplot(predicted_df_tidy,aes(x=Days,y=.pred,colour=Subject))+
        geom_line()
@@ -83,6 +65,21 @@ ggplot(predicted_df_tidy,aes(x=Days,y=.pred,colour=Subject))+
 
 
 
+```{r lme4 way}
+
+mod <- lmer(Reaction ~ Days + (1|Subject),data=sleepstudy)
+
+expanded_df <- with(sleepstudy,
+                    data.frame(
+                      expand.grid(Subject=levels(Subject),
+                                  Days=seq(min(Days),max(Days),length=51))))
+
+predicted_df <- data.frame(expanded_df,resp=predict(mod,newdata=expanded_df))
+
+ggplot(predicted_df,aes(x=Days,y=resp,colour=Subject))+
+       geom_line()
+
+```
 
 
 
