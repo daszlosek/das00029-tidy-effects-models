@@ -50,9 +50,6 @@ expanded_df_tidy <- with(sleepstudy,
                       expand.grid(Subject=levels(Subject),
                                   Days=seq(min(Days),max(Days),length=51))))
 
-
-str(mixed_model_fit_tidy)
-
 predicted_df_tidy <- data.frame(expanded_df_tidy,resp=predict(mixed_model_fit_tidy,new_data=expanded_df_tidy))
 
 

@@ -10,40 +10,30 @@ pacman::p_load("tidyverse","lme4")
 
 library(multilevelmod)
 
-sleepstudy <- lme4::sleepstudy
+sleepstudy <- lme4::sleepstudy %>% group_by(Subject) %>% 
+              # create a new random category just for plotting
+              mutate(cat = sample( LETTERS[1:3], 1, replace=TRUE, prob=c(0.25, 0.50, 0.25))) %>%
+              ungroup()
+
+head(sleepstudy,30)
+
 
 ```
 
 
-```{r}
-
-# install.packages("Rtools")
-# 
-# devtools::install_github("tidymodels/multilevelmod", force =T)
-
-```
-
 
 
 ```{r}
-# https://github.com/tidymodels/multilevelmod
-
-#> Loading required package: parsnip
-data(sleepstudy, package = "lme4")
-
 
 # set engine to lme4
 mixed_model_spec <- linear_reg() %>% set_engine("lmer")
 
-
 # create model
 mixed_model_fit_tidy <- 
   mixed_model_spec %>% 
-  fit(Reaction ~ Days + (1 | Subject), data = sleepstudy)
-
+  fit(Reaction ~ Days + cat + (1 | Subject), data = sleepstudy)
 
 mixed_model_fit_tidy
-
 
 ```
 
@@ -54,6 +44,7 @@ mixed_model_fit_tidy
 expanded_df_tidy <- with(sleepstudy,
                     data.frame(
                       expand.grid(Subject=levels(Subject),
+                                  cat = unique(cat),
                                   Days=seq(min(Days),max(Days),length=51))))
 
 ```
@@ -73,10 +64,11 @@ predicted_df_tidy <- mutate(expanded_df_tidy,
                                                 type = "raw", opts=list(re.form=NA)))
 
 
-predicted_df_tidy
+predict(mixed_model_fit_tidy,new_data=expanded_df_tidy,type = "raw", opts=list(re.form=NA))
 
 
-ggplot(predicted_df_tidy,aes(x=Days,y=.pred,colour=Subject))+
+ggplot(predicted_df_tidy,aes(x=Days,y=pred_rand,colour=Subject))+
+       facet_wrap(.~cat) + 
        geom_line()
 
 
