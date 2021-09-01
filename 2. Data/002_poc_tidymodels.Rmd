@@ -59,31 +59,25 @@ expanded_df_tidy <- with(sleepstudy,
 ```
 
 
+
 ```{r}
 
+# the issue is that multilevelmod internally sets the default for prediction to re.form = NA; the code above resets it to re.form = NULL (which is the lme4 default, i.e. include all random effects in the prediction)
 
-predicted_df_tidy <- data.frame(expanded_df_tidy,resp=predict(mixed_model_fit_tidy,new_data=expanded_df_tidy))
+predicted_df_tidy <- mutate(expanded_df_tidy,
+       .pred = predict(mixed_model_fit_tidy,
+                       new_data=expanded_df_tidy, 
+                       type = "raw", opts=list(re.form=NULL)))
 
 
 predicted_df_tidy
 
-```
-
-
-
-
-```{r}
 
 ggplot(predicted_df_tidy,aes(x=Days,y=.pred,colour=Subject))+
        geom_line()
 
+
 ```
-
-
-
-
-
-
 
 
 

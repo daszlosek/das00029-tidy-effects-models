@@ -244,189 +244,38 @@ sleepstudy &lt;- lme4::sleepstudy
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3RyKG1peGVkX21vZGVsX2ZpdF90aWR5KVxuXG5gYGAifQ== -->
-<pre class="r"><code>str(mixed_model_fit_tidy)
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBodHRwczovL2dpdGh1Yi5jb20vdGlkeW1vZGVscy9tdWx0aWxldmVsbW9kXG5cbiM+IExvYWRpbmcgcmVxdWlyZWQgcGFja2FnZTogcGFyc25pcFxuZGF0YShzbGVlcHN0dWR5LCBwYWNrYWdlID0gXCJsbWU0XCIpXG5cblxuIyBzZXQgZW5naW5lIHRvIGxtZTRcbm1peGVkX21vZGVsX3NwZWMgPC0gbGluZWFyX3JlZygpICU+JSBzZXRfZW5naW5lKFwibG1lclwiKVxuXG5cbiMgY3JlYXRlIG1vZGVsXG5taXhlZF9tb2RlbF9maXRfdGlkeSA8LSBcbiAgbWl4ZWRfbW9kZWxfc3BlYyAlPiUgXG4gIGZpdChSZWFjdGlvbiB+IERheXMgKyAoMSB8IFN1YmplY3QpLCBkYXRhID0gc2xlZXBzdHVkeSlcblxuXG5leHBhbmRlZF9kZl90aWR5IDwtIHdpdGgoc2xlZXBzdHVkeSxcbiAgICAgICAgICAgICAgICAgICAgZGF0YS5mcmFtZShcbiAgICAgICAgICAgICAgICAgICAgICBleHBhbmQuZ3JpZChTdWJqZWN0PWxldmVscyhTdWJqZWN0KSxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBEYXlzPXNlcShtaW4oRGF5cyksbWF4KERheXMpLGxlbmd0aD01MSkpKSlcblxuXG5zdHIobWl4ZWRfbW9kZWxfZml0X3RpZHkpXG5cbnByZWRpY3RlZF9kZl90aWR5IDwtIGRhdGEuZnJhbWUoZXhwYW5kZWRfZGZfdGlkeSxyZXNwPXByZWRpY3QobWl4ZWRfbW9kZWxfZml0X3RpZHksbmV3X2RhdGE9ZXhwYW5kZWRfZGZfdGlkeSkpXG5cblxuZ2dwbG90KHByZWRpY3RlZF9kZl90aWR5LGFlcyh4PURheXMseT0ucHJlZCxjb2xvdXI9U3ViamVjdCkpK1xuICAgICAgIGdlb21fbGluZSgpXG5cbmBgYCJ9 -->
+<pre class="r"><code># https://github.com/tidymodels/multilevelmod
+
+#&gt; Loading required package: parsnip
+data(sleepstudy, package = &quot;lme4&quot;)
+
+
+# set engine to lme4
+mixed_model_spec &lt;- linear_reg() %&gt;% set_engine(&quot;lmer&quot;)
+
+
+# create model
+mixed_model_fit_tidy &lt;- 
+  mixed_model_spec %&gt;% 
+  fit(Reaction ~ Days + (1 | Subject), data = sleepstudy)
+
+
+expanded_df_tidy &lt;- with(sleepstudy,
+                    data.frame(
+                      expand.grid(Subject=levels(Subject),
+                                  Days=seq(min(Days),max(Days),length=51))))
+
+
+str(mixed_model_fit_tidy)
+
+predicted_df_tidy &lt;- data.frame(expanded_df_tidy,resp=predict(mixed_model_fit_tidy,new_data=expanded_df_tidy))
+
+
+ggplot(predicted_df_tidy,aes(x=Days,y=.pred,colour=Subject))+
+       geom_line()
 </code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiTGlzdCBvZiA1XG4gJCBsdmwgICAgOiBOVUxMXG4gJCBzcGVjICAgOkxpc3Qgb2YgNVxuICAuLiQgYXJncyAgICA6TGlzdCBvZiAyXG4gIC4uIC4uJCBwZW5hbHR5OiBsYW5ndWFnZSB+TlVMTFxuICAuLiAuLiAuLi0gYXR0cigqLCBcIi5FbnZpcm9ubWVudFwiKT08ZW52aXJvbm1lbnQ6IFJfRW1wdHlFbnY+IFxuICAuLiAuLiQgbWl4dHVyZTogbGFuZ3VhZ2Ugfk5VTExcbiAgLi4gLi4gLi4tIGF0dHIoKiwgXCIuRW52aXJvbm1lbnRcIik9PGVudmlyb25tZW50OiBSX0VtcHR5RW52PiBcbiAgLi4kIGVuZ19hcmdzOiBOYW1lZCBsaXN0KClcbiAgLi4gLi4tIGF0dHIoKiwgXCJjbGFzc1wiKT0gY2hyIFsxOjJdIFwicXVvc3VyZXNcIiBcImxpc3RcIlxuICAuLiQgbW9kZSAgICA6IGNociBcInJlZ3Jlc3Npb25cIlxuICAuLiQgbWV0aG9kICA6TGlzdCBvZiAzXG4gIC4uIC4uJCBsaWJzOiBjaHIgWzE6Ml0gXCJtdWx0aWxldmVsbW9kXCIgXCJsbWU0XCJcbiAgLi4gLi4kIGZpdCA6TGlzdCBvZiA1XG4gIC4uIC4uIC4uJCBpbnRlcmZhY2U6IGNociBcImZvcm11bGFcIlxuICAuLiAuLiAuLiQgcHJvdGVjdCAgOiBjaHIgWzE6Ml0gXCJmb3JtdWxhXCIgXCJkYXRhXCJcbiAgLi4gLi4gLi4kIGZ1bmMgICAgIDogTmFtZWQgY2hyIFsxOjJdIFwibG1lNFwiIFwibG1lclwiXG4gIC4uIC4uIC4uIC4uLSBhdHRyKCosIFwibmFtZXNcIik9IGNociBbMToyXSBcInBrZ1wiIFwiZnVuXCJcbiAgLi4gLi4gLi4kIGRlZmF1bHRzIDogbGlzdCgpXG4gIC4uIC4uIC4uJCBhcmdzICAgICA6TGlzdCBvZiAyXG4gIC4uIC4uIC4uIC4uJCBmb3JtdWxhOiBsYW5ndWFnZSBtaXNzaW5nX2FyZygpXG4gIC4uIC4uIC4uIC4uJCBkYXRhICAgOiBsYW5ndWFnZSBtaXNzaW5nX2FyZygpXG4gIC4uIC4uJCBwcmVkOkxpc3Qgb2YgMlxuICAuLiAuLiAuLiQgbnVtZXJpYzpMaXN0IG9mIDRcbiAgLi4gLi4gLi4gLi4kIHByZSA6ZnVuY3Rpb24gKHgsIG9iamVjdCkgIFxuICAuLiAuLiAuLiAuLiQgcG9zdDogTlVMTFxuICAuLiAuLiAuLiAuLiQgZnVuYzogTmFtZWQgY2hyIFwicHJlZGljdFwiXG4gIC4uIC4uIC4uIC4uIC4uLSBhdHRyKCosIFwibmFtZXNcIik9IGNociBcImZ1blwiXG4gIC4uIC4uIC4uIC4uJCBhcmdzOkxpc3Qgb2YgNlxuICAuLiAuLiAuLiAuLiAuLiQgb2JqZWN0ICAgICAgICAgIDogbGFuZ3VhZ2Ugb2JqZWN0JGZpdFxuICAuLiAuLiAuLiAuLiAuLiQgbmV3ZGF0YSAgICAgICAgIDogc3ltYm9sIG5ld19kYXRhXG4gIC4uIC4uIC4uIC4uIC4uJCBhbGxvdy5uZXcubGV2ZWxzOiBsb2dpIFRSVUVcbiAgLi4gLi4gLi4gLi4gLi4kIHJlLmZvcm0gICAgICAgICA6IGxvZ2kgTkFcbiAgLi4gLi4gLi4gLi4gLi4kIG5hLmFjdGlvbiAgICAgICA6IHN5bWJvbCBuYS5leGNsdWRlXG4gIC4uIC4uIC4uIC4uIC4uJCB0eXBlICAgICAgICAgICAgOiBjaHIgXCJyZXNwb25zZVwiXG4gIC4uIC4uIC4uJCByYXcgICAgOkxpc3Qgb2YgNFxuICAuLiAuLiAuLiAuLiQgcHJlIDogTlVMTFxuICAuLiAuLiAuLiAuLiQgcG9zdDogTlVMTFxuICAuLiAuLiAuLiAuLiQgZnVuYzogTmFtZWQgY2hyIFwicHJlZGljdFwiXG4gIC4uIC4uIC4uIC4uIC4uLSBhdHRyKCosIFwibmFtZXNcIik9IGNociBcImZ1blwiXG4gIC4uIC4uIC4uIC4uJCBhcmdzOkxpc3Qgb2YgMlxuICAuLiAuLiAuLiAuLiAuLiQgb2JqZWN0IDogbGFuZ3VhZ2Ugb2JqZWN0JGZpdFxuICAuLiAuLiAuLiAuLiAuLiQgbmV3ZGF0YTogc3ltYm9sIG5ld19kYXRhXG4gIC4uJCBlbmdpbmUgIDogY2hyIFwibG1lclwiXG4gIC4uLSBhdHRyKCosIFwiY2xhc3NcIik9IGNociBbMToyXSBcImxpbmVhcl9yZWdcIiBcIm1vZGVsX3NwZWNcIlxuICQgZml0ICAgIDpGb3JtYWwgY2xhc3MgJ2xtZXJNb2QnIFtwYWNrYWdlIFwibG1lNFwiXSB3aXRoIDEzIHNsb3RzXG4gIC4uIC4uQCByZXNwICAgOlJlZmVyZW5jZSBjbGFzcyAnbG1lclJlc3AnIFtwYWNrYWdlIFwibG1lNFwiXSB3aXRoIDkgZmllbGRzXG4gIC4uIC4uIC4uJCBQdHIgICAgOjxleHRlcm5hbHB0cj4gXG4gIC4uIC4uIC4uJCBtdSAgICAgOiBudW0gWzE6MTgwXSAyOTIgMzAzIDMxMyAzMjQgMzM0IC4uLlxuICAuLiAuLiAuLiQgb2Zmc2V0IDogbnVtIFsxOjE4MF0gMCAwIDAgMCAwIDAgMCAwIDAgMCAuLi5cbiAgLi4gLi4gLi4kIHNxcnRYd3Q6IG51bSBbMToxODBdIDEgMSAxIDEgMSAxIDEgMSAxIDEgLi4uXG4gIC4uIC4uIC4uJCBzcXJ0cnd0OiBudW0gWzE6MTgwXSAxIDEgMSAxIDEgMSAxIDEgMSAxIC4uLlxuICAuLiAuLiAuLiQgd2VpZ2h0czogbnVtIFsxOjE4MF0gMSAxIDEgMSAxIDEgMSAxIDEgMSAuLi5cbiAgLi4gLi4gLi4kIHd0cmVzICA6IG51bSBbMToxODBdIC00Mi42MyAtNDMuOTUgLTYyLjMyIC0yLjE1IDIyLjc5IC4uLlxuICAuLiAuLiAuLiQgeSAgICAgIDogbnVtIFsxOjE4MF0gMjUwIDI1OSAyNTEgMzIxIDM1NyAuLi5cbiAgLi4gLi4gLi4kIFJFTUwgICA6IGludCAyXG4gIC4uIC4uIC4uYW5kIDI4IG1ldGhvZHMsIG9mIHdoaWNoIDE0IGFyZSAgcG9zc2libHkgcmVsZXZhbnQ6XG4gIC4uIC4uIC4uICBhbGxJbmZvLCBjb3B5I2VudlJlZkNsYXNzLCBpbml0aWFsaXplLCBpbml0aWFsaXplI2xtUmVzcCwgaW5pdGlhbGl6ZVB0ciwgaW5pdGlhbGl6ZVB0ciNsbVJlc3AsXG4gIC4uIC4uIC4uICBvYmplY3RpdmUsIHB0ciwgcHRyI2xtUmVzcCwgc2V0T2Zmc2V0LCBzZXRSZXNwLCBzZXRXZWlnaHRzLCB1cGRhdGVNdSwgd3Jzc1xuICAuLiAuLkAgR3AgICAgIDogaW50IFsxOjJdIDAgMThcbiAgLi4gLi5AIGNhbGwgICA6IGxhbmd1YWdlIGxtZTQ6OmxtZXIoZm9ybXVsYSA9IFJlYWN0aW9uIH4gRGF5cyArICgxIHwgU3ViamVjdCksIGRhdGEgPSBkYXRhKVxuICAuLiAuLkAgZnJhbWUgIDonZGF0YS5mcmFtZSc6XHQxODAgb2JzLiBvZiAgMyB2YXJpYWJsZXM6XG4gIC4uIC4uIC4uJCBSZWFjdGlvbjogbnVtIFsxOjE4MF0gMjUwIDI1OSAyNTEgMzIxIDM1NyAuLi5cbiAgLi4gLi4gLi4kIERheXMgICAgOiBudW0gWzE6MTgwXSAwIDEgMiAzIDQgNSA2IDcgOCA5IC4uLlxuICAuLiAuLiAuLiQgU3ViamVjdCA6IEZhY3RvciB3LyAxOCBsZXZlbHMgXCIzMDhcIixcIjMwOVwiLFwiMzEwXCIsLi46IDEgMSAxIDEgMSAxIDEgMSAxIDEgLi4uXG4gIC4uIC4uIC4uLSBhdHRyKCosIFwidGVybXNcIik9Q2xhc3NlcyAndGVybXMnLCAnZm9ybXVsYScgIGxhbmd1YWdlIFJlYWN0aW9uIH4gRGF5cyArICgxICsgU3ViamVjdClcbiAgLi4gLi4gLi4gLi4gLi4tIGF0dHIoKiwgXCJ2YXJpYWJsZXNcIik9IGxhbmd1YWdlIGxpc3QoUmVhY3Rpb24sIERheXMsIFN1YmplY3QpXG4gIC4uIC4uIC4uIC4uIC4uLSBhdHRyKCosIFwiZmFjdG9yc1wiKT0gaW50IFsxOjMsIDE6Ml0gMCAxIDAgMCAwIDFcbiAgLi4gLi4gLi4gLi4gLi4gLi4tIGF0dHIoKiwgXCJkaW1uYW1lc1wiKT1MaXN0IG9mIDJcbiAgLi4gLi4gLi4gLi4gLi4gLi4gLi4kIDogY2hyIFsxOjNdIFwiUmVhY3Rpb25cIiBcIkRheXNcIiBcIlN1YmplY3RcIlxuICAuLiAuLiAuLiAuLiAuLiAuLiAuLiQgOiBjaHIgWzE6Ml0gXCJEYXlzXCIgXCJTdWJqZWN0XCJcbiAgLi4gLi4gLi4gLi4gLi4tIGF0dHIoKiwgXCJ0ZXJtLmxhYmVsc1wiKT0gY2hyIFsxOjJdIFwiRGF5c1wiIFwiU3ViamVjdFwiXG4gIC4uIC4uIC4uIC4uIC4uLSBhdHRyKCosIFwib3JkZXJcIik9IGludCBbMToyXSAxIDFcbiAgLi4gLi4gLi4gLi4gLi4tIGF0dHIoKiwgXCJpbnRlcmNlcHRcIik9IGludCAxXG4gIC4uIC4uIC4uIC4uIC4uLSBhdHRyKCosIFwicmVzcG9uc2VcIik9IGludCAxXG4gIC4uIC4uIC4uIC4uIC4uLSBhdHRyKCosIFwiLkVudmlyb25tZW50XCIpPTxlbnZpcm9ubWVudDogMHgwMDAwMDI4ZmU2YzY4OTcwPiBcbiAgLi4gLi4gLi4gLi4gLi4tIGF0dHIoKiwgXCJwcmVkdmFyc1wiKT0gbGFuZ3VhZ2UgbGlzdChSZWFjdGlvbiwgRGF5cywgU3ViamVjdClcbiAgLi4gLi4gLi4gLi4gLi4tIGF0dHIoKiwgXCJkYXRhQ2xhc3Nlc1wiKT0gTmFtZWQgY2hyIFsxOjNdIFwibnVtZXJpY1wiIFwibnVtZXJpY1wiIFwiZmFjdG9yXCJcbiAgLi4gLi4gLi4gLi4gLi4gLi4tIGF0dHIoKiwgXCJuYW1lc1wiKT0gY2hyIFsxOjNdIFwiUmVhY3Rpb25cIiBcIkRheXNcIiBcIlN1YmplY3RcIlxuICAuLiAuLiAuLiAuLiAuLi0gYXR0cigqLCBcInByZWR2YXJzLmZpeGVkXCIpPSBsYW5ndWFnZSBsaXN0KFJlYWN0aW9uLCBEYXlzKVxuICAuLiAuLiAuLiAuLiAuLi0gYXR0cigqLCBcInZhcm5hbWVzLmZpeGVkXCIpPSBjaHIgWzE6Ml0gXCJSZWFjdGlvblwiIFwiRGF5c1wiXG4gIC4uIC4uIC4uIC4uIC4uLSBhdHRyKCosIFwicHJlZHZhcnMucmFuZG9tXCIpPSBsYW5ndWFnZSBsaXN0KFJlYWN0aW9uLCBTdWJqZWN0KVxuICAuLiAuLiAuLi0gYXR0cigqLCBcImZvcm11bGFcIik9Q2xhc3MgJ2Zvcm11bGEnICBsYW5ndWFnZSBSZWFjdGlvbiB+IERheXMgKyAoMSB8IFN1YmplY3QpXG4gIC4uIC4uIC4uIC4uIC4uLSBhdHRyKCosIFwiLkVudmlyb25tZW50XCIpPTxlbnZpcm9ubWVudDogMHgwMDAwMDI4ZmU2YzY4OTcwPiBcbiAgLi4gLi5AIGZsaXN0ICA6TGlzdCBvZiAxXG4gIC4uIC4uIC4uJCBTdWJqZWN0OiBGYWN0b3Igdy8gMTggbGV2ZWxzIFwiMzA4XCIsXCIzMDlcIixcIjMxMFwiLC4uOiAxIDEgMSAxIDEgMSAxIDEgMSAxIC4uLlxuICAuLiAuLiAuLi0gYXR0cigqLCBcImFzc2lnblwiKT0gaW50IDFcbiAgLi4gLi5AIGNubXMgICA6TGlzdCBvZiAxXG4gIC4uIC4uIC4uJCBTdWJqZWN0OiBjaHIgXCIoSW50ZXJjZXB0KVwiXG4gIC4uIC4uQCBsb3dlciAgOiBudW0gMFxuICAuLiAuLkAgdGhldGEgIDogbnVtIDEuMlxuICAuLiAuLkAgYmV0YSAgIDogbnVtIFsxOjJdIDI1MS40IDEwLjVcbiAgLi4gLi5AIHUgICAgICA6IG51bSBbMToxOF0gMzQuMDUgLTY0Ljk5IC01Mi42OCAzLjY4IDguNTMgLi4uXG4gIC4uIC4uQCBkZXZjb21wOkxpc3Qgb2YgMlxuICAuLiAuLiAuLiQgY21wIDogTmFtZWQgbnVtIFsxOjEwXSA0LjkyZSswMSA5Ljc3IDEuNTZlKzA1IDEuNTNlKzA0IDEuNzFlKzA1IC4uLlxuICAuLiAuLiAuLiAuLi0gYXR0cigqLCBcIm5hbWVzXCIpPSBjaHIgWzE6MTBdIFwibGRMMlwiIFwibGRSWDJcIiBcIndyc3NcIiBcInVzc3FcIiAuLi5cbiAgLi4gLi4gLi4kIGRpbXM6IE5hbWVkIGludCBbMToxMl0gMTgwIDE4MCAyIDE3OCAxOCAxIDEgMSAwIDIgLi4uXG4gIC4uIC4uIC4uIC4uLSBhdHRyKCosIFwibmFtZXNcIik9IGNociBbMToxMl0gXCJOXCIgXCJuXCIgXCJwXCIgXCJubXBcIiAuLi5cbiAgLi4gLi5AIHBwICAgICA6UmVmZXJlbmNlIGNsYXNzICdtZXJQcmVkRCcgW3BhY2thZ2UgXCJsbWU0XCJdIHdpdGggMTggZmllbGRzXG4gIC4uIC4uIC4uJCBMYW1iZGF0OkZvcm1hbCBjbGFzcyAnZGdDTWF0cml4JyBbcGFja2FnZSBcIk1hdHJpeFwiXSB3aXRoIDYgc2xvdHNcbiAgLi4gLi4gLi4gLi4gLi5AIGkgICAgICAgOiBpbnQgWzE6MThdIDAgMSAyIDMgNCA1IDYgNyA4IDkgLi4uXG4gIC4uIC4uIC4uIC4uIC4uQCBwICAgICAgIDogaW50IFsxOjE5XSAwIDEgMiAzIDQgNSA2IDcgOCA5IC4uLlxuICAuLiAuLiAuLiAuLiAuLkAgRGltICAgICA6IGludCBbMToyXSAxOCAxOFxuICAuLiAuLiAuLiAuLiAuLkAgRGltbmFtZXM6TGlzdCBvZiAyXG4gIC4uIC4uIC4uIC4uIC4uIC4uJCA6IE5VTExcbiAgLi4gLi4gLi4gLi4gLi4gLi4kIDogTlVMTFxuICAuLiAuLiAuLiAuLiAuLkAgeCAgICAgICA6IG51bSBbMToxOF0gMS4yIDEuMiAxLjIgMS4yIDEuMiAuLi5cbiAgLi4gLi4gLi4gLi4gLi5AIGZhY3RvcnMgOiBsaXN0KClcbiAgLi4gLi4gLi4kIExhbXRVdCA6Rm9ybWFsIGNsYXNzICdkZ0NNYXRyaXgnIFtwYWNrYWdlIFwiTWF0cml4XCJdIHdpdGggNiBzbG90c1xuICAuLiAuLiAuLiAuLiAuLkAgaSAgICAgICA6IGludCBbMToxODBdIDAgMCAwIDAgMCAwIDAgMCAwIDAgLi4uXG4gIC4uIC4uIC4uIC4uIC4uQCBwICAgICAgIDogaW50IFsxOjE4MV0gMCAxIDIgMyA0IDUgNiA3IDggOSAuLi5cbiAgLi4gLi4gLi4gLi4gLi5AIERpbSAgICAgOiBpbnQgWzE6Ml0gMTggMTgwXG4gIC4uIC4uIC4uIC4uIC4uQCBEaW1uYW1lczpMaXN0IG9mIDJcbiAgLi4gLi4gLi4gLi4gLi4gLi4kIDogTlVMTFxuICAuLiAuLiAuLiAuLiAuLiAuLiQgOiBjaHIgWzE6MTgwXSBcIjFcIiBcIjJcIiBcIjNcIiBcIjRcIiAuLi5cbiAgLi4gLi4gLi4gLi4gLi5AIHggICAgICAgOiBudW0gWzE6MTgwXSAxLjIgMS4yIDEuMiAxLjIgMS4yIC4uLlxuICAuLiAuLiAuLiAuLiAuLkAgZmFjdG9ycyA6IGxpc3QoKVxuICAuLiAuLiAuLiQgTGluZCAgIDogaW50IFsxOjE4XSAxIDEgMSAxIDEgMSAxIDEgMSAxIC4uLlxuICAuLiAuLiAuLiQgUHRyICAgIDo8ZXh0ZXJuYWxwdHI+IFxuICAuLiAuLiAuLiQgUlpYICAgIDogbnVtIFsxOjE4LCAxOjJdIDMuMDYgMy4wNiAzLjA2IDMuMDYgMy4wNiAuLi5cbiAgLi4gLi4gLi4kIFV0ICAgICA6Rm9ybWFsIGNsYXNzICdkZ0NNYXRyaXgnIFtwYWNrYWdlIFwiTWF0cml4XCJdIHdpdGggNiBzbG90c1xuICAuLiAuLiAuLiAuLiAuLkAgaSAgICAgICA6IGludCBbMToxODBdIDAgMCAwIDAgMCAwIDAgMCAwIDAgLi4uXG4gIC4uIC4uIC4uIC4uIC4uQCBwICAgICAgIDogaW50IFsxOjE4MV0gMCAxIDIgMyA0IDUgNiA3IDggOSAuLi5cbiAgLi4gLi4gLi4gLi4gLi5AIERpbSAgICAgOiBpbnQgWzE6Ml0gMTggMTgwXG4gIC4uIC4uIC4uIC4uIC4uQCBEaW1uYW1lczpMaXN0IG9mIDJcbiAgLi4gLi4gLi4gLi4gLi4gLi4kIDogY2hyIFsxOjE4XSBcIjMwOFwiIFwiMzA5XCIgXCIzMTBcIiBcIjMzMFwiIC4uLlxuICAuLiAuLiAuLiAuLiAuLiAuLiQgOiBjaHIgWzE6MTgwXSBcIjFcIiBcIjJcIiBcIjNcIiBcIjRcIiAuLi5cbiAgLi4gLi4gLi4gLi4gLi5AIHggICAgICAgOiBudW0gWzE6MTgwXSAxIDEgMSAxIDEgMSAxIDEgMSAxIC4uLlxuICAuLiAuLiAuLiAuLiAuLkAgZmFjdG9ycyA6IGxpc3QoKVxuICAuLiAuLiAuLiQgVXRyICAgIDogbnVtIFsxOjE4XSA0MDk4IDI1NzggMjc2NyAzNjMyIDM3MDcgLi4uXG4gIC4uIC4uIC4uJCBWICAgICAgOiBudW0gWzE6MTgwLCAxOjJdIDEgMSAxIDEgMSAxIDEgMSAxIDEgLi4uXG4gIC4uIC4uIC4uJCBWdFYgICAgOiBudW0gWzE6MiwgMToyXSAxODAgMCA4MTAgNTEzMFxuICAuLiAuLiAuLiQgVnRyICAgIDogbnVtIFsxOjJdIDUzNzMxIDI1NzMzNVxuICAuLiAuLiAuLiQgWCAgICAgIDogbnVtIFsxOjE4MCwgMToyXSAxIDEgMSAxIDEgMSAxIDEgMSAxIC4uLlxuICAuLiAuLiAuLiAuLi0gYXR0cigqLCBcImRpbW5hbWVzXCIpPUxpc3Qgb2YgMlxuICAuLiAuLiAuLiAuLiAuLiQgOiBjaHIgWzE6MTgwXSBcIjFcIiBcIjJcIiBcIjNcIiBcIjRcIiAuLi5cbiAgLi4gLi4gLi4gLi4gLi4kIDogY2hyIFsxOjJdIFwiKEludGVyY2VwdClcIiBcIkRheXNcIlxuICAuLiAuLiAuLiAuLi0gYXR0cigqLCBcImFzc2lnblwiKT0gaW50IFsxOjJdIDAgMVxuICAuLiAuLiAuLiAuLi0gYXR0cigqLCBcIm1zZ1NjYWxlWFwiKT0gY2hyKDApIFxuICAuLiAuLiAuLiQgWHd0cyAgIDogbnVtIFsxOjE4MF0gMSAxIDEgMSAxIDEgMSAxIDEgMSAuLi5cbiAgLi4gLi4gLi4kIFp0ICAgICA6Rm9ybWFsIGNsYXNzICdkZ0NNYXRyaXgnIFtwYWNrYWdlIFwiTWF0cml4XCJdIHdpdGggNiBzbG90c1xuICAuLiAuLiAuLiAuLiAuLkAgaSAgICAgICA6IGludCBbMToxODBdIDAgMCAwIDAgMCAwIDAgMCAwIDAgLi4uXG4gIC4uIC4uIC4uIC4uIC4uQCBwICAgICAgIDogaW50IFsxOjE4MV0gMCAxIDIgMyA0IDUgNiA3IDggOSAuLi5cbiAgLi4gLi4gLi4gLi4gLi5AIERpbSAgICAgOiBpbnQgWzE6Ml0gMTggMTgwXG4gIC4uIC4uIC4uIC4uIC4uQCBEaW1uYW1lczpMaXN0IG9mIDJcbiAgLi4gLi4gLi4gLi4gLi4gLi4kIDogY2hyIFsxOjE4XSBcIjMwOFwiIFwiMzA5XCIgXCIzMTBcIiBcIjMzMFwiIC4uLlxuICAuLiAuLiAuLiAuLiAuLiAuLiQgOiBjaHIgWzE6MTgwXSBcIjFcIiBcIjJcIiBcIjNcIiBcIjRcIiAuLi5cbiAgLi4gLi4gLi4gLi4gLi5AIHggICAgICAgOiBudW0gWzE6MTgwXSAxIDEgMSAxIDEgMSAxIDEgMSAxIC4uLlxuICAuLiAuLiAuLiAuLiAuLkAgZmFjdG9ycyA6IGxpc3QoKVxuICAuLiAuLiAuLiQgYmV0YTAgIDogbnVtIFsxOjJdIDAgMFxuICAuLiAuLiAuLiQgZGVsYiAgIDogbnVtIFsxOjJdIDI1MS40IDEwLjVcbiAgLi4gLi4gLi4kIGRlbHUgICA6IG51bSBbMToxOF0gMzQuMDUgLTY0Ljk5IC01Mi42OCAzLjY4IDguNTMgLi4uXG4gIC4uIC4uIC4uJCB0aGV0YSAgOiBudW0gMS4yXG4gIC4uIC4uIC4uJCB1MCAgICAgOiBudW0gWzE6MThdIDAgMCAwIDAgMCAwIDAgMCAwIDAgLi4uXG4gIC4uIC4uIC4uYW5kIDQ1IG1ldGhvZHMsIG9mIHdoaWNoIDMxIGFyZSAgcG9zc2libHkgcmVsZXZhbnQ6XG4gIC4uIC4uIC4uICBiLCBiZXRhLCBDY051bWVyLCBjb3B5I2VudlJlZkNsYXNzLCBpbml0aWFsaXplLCBpbml0aWFsaXplUHRyLCBpbnN0YWxsUGFycywgTCwgbGRMMiwgbGRSWDIsIGxpblByZWQsXG4gIC4uIC4uIC4uICBQLCBwdHIsIFJYLCBSWGRpYWcsIFJYaSwgc2V0QmV0YTAsIHNldERlbGIsIHNldERlbHUsIHNldFRoZXRhLCBzZXRadCwgc29sdmUsIHNvbHZlVSwgc3FyTCwgdSwgdW5zYyxcbiAgLi4gLi4gLi4gIHVwZGF0ZURlY29tcCwgdXBkYXRlTCwgdXBkYXRlTGFtdFV0LCB1cGRhdGVSZXMsIHVwZGF0ZVh3dHNcbiAgLi4gLi5AIG9wdGluZm86TGlzdCBvZiA4XG4gIC4uIC4uIC4uJCBvcHRpbWl6ZXI6IGNociBcIm5sb3B0d3JhcFwiXG4gIC4uIC4uIC4uJCBjb250cm9sICA6TGlzdCBvZiAxXG4gIC4uIC4uIC4uIC4uJCBwcmludF9sZXZlbDogbnVtIDBcbiAgLi4gLi4gLi4kIGRlcml2cyAgIDpMaXN0IG9mIDJcbiAgLi4gLi4gLi4gLi4kIGdyYWRpZW50OiBudW0gLTEuMThlLTA3XG4gIC4uIC4uIC4uIC4uJCBIZXNzaWFuIDogbnVtIFsxLCAxXSAzNy41XG4gIC4uIC4uIC4uJCBjb252ICAgICA6TGlzdCBvZiAyXG4gIC4uIC4uIC4uIC4uJCBvcHQgOiBudW0gMFxuICAuLiAuLiAuLiAuLiQgbG1lNDogbGlzdCgpXG4gIC4uIC4uIC4uJCBmZXZhbCAgICA6IGludCAxM1xuICAuLiAuLiAuLiQgbWVzc2FnZSAgOiBjaHIgXCJOTE9QVF9YVE9MX1JFQUNIRUQ6IE9wdGltaXphdGlvbiBzdG9wcGVkIGJlY2F1c2UgeHRvbF9yZWwgb3IgeHRvbF9hYnMgKGFib3ZlKSB3YXMgcmVhY2hlZC5cIlxuICAuLiAuLiAuLiQgd2FybmluZ3MgOiBsaXN0KClcbiAgLi4gLi4gLi4kIHZhbCAgICAgIDogbnVtIDEuMlxuICQgcHJlcHJvYzpMaXN0IG9mIDFcbiAgLi4kIHlfdmFyOiBjaHIgXCJSZWFjdGlvblwiXG4gJCBlbGFwc2VkOiAncHJvY190aW1lJyBOYW1lZCBudW0gWzE6NV0gMC4wMyAwIDAuMDMgTkEgTkFcbiAgLi4tIGF0dHIoKiwgXCJuYW1lc1wiKT0gY2hyIFsxOjVdIFwidXNlci5zZWxmXCIgXCJzeXMuc2VsZlwiIFwiZWxhcHNlZFwiIFwidXNlci5jaGlsZFwiIC4uLlxuIC0gYXR0cigqLCBcImNsYXNzXCIpPSBjaHIgWzE6Ml0gXCJfbG1lck1vZFwiIFwibW9kZWxfZml0XCJcbiJ9 -->
-<pre><code>List of 5
- $ lvl    : NULL
- $ spec   :List of 5
-  ..$ args    :List of 2
-  .. ..$ penalty: language ~NULL
-  .. .. ..- attr(*, &quot;.Environment&quot;)=&lt;environment: R_EmptyEnv&gt; 
-  .. ..$ mixture: language ~NULL
-  .. .. ..- attr(*, &quot;.Environment&quot;)=&lt;environment: R_EmptyEnv&gt; 
-  ..$ eng_args: Named list()
-  .. ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;quosures&quot; &quot;list&quot;
-  ..$ mode    : chr &quot;regression&quot;
-  ..$ method  :List of 3
-  .. ..$ libs: chr [1:2] &quot;multilevelmod&quot; &quot;lme4&quot;
-  .. ..$ fit :List of 5
-  .. .. ..$ interface: chr &quot;formula&quot;
-  .. .. ..$ protect  : chr [1:2] &quot;formula&quot; &quot;data&quot;
-  .. .. ..$ func     : Named chr [1:2] &quot;lme4&quot; &quot;lmer&quot;
-  .. .. .. ..- attr(*, &quot;names&quot;)= chr [1:2] &quot;pkg&quot; &quot;fun&quot;
-  .. .. ..$ defaults : list()
-  .. .. ..$ args     :List of 2
-  .. .. .. ..$ formula: language missing_arg()
-  .. .. .. ..$ data   : language missing_arg()
-  .. ..$ pred:List of 2
-  .. .. ..$ numeric:List of 4
-  .. .. .. ..$ pre :function (x, object)  
-  .. .. .. ..$ post: NULL
-  .. .. .. ..$ func: Named chr &quot;predict&quot;
-  .. .. .. .. ..- attr(*, &quot;names&quot;)= chr &quot;fun&quot;
-  .. .. .. ..$ args:List of 6
-  .. .. .. .. ..$ object          : language object$fit
-  .. .. .. .. ..$ newdata         : symbol new_data
-  .. .. .. .. ..$ allow.new.levels: logi TRUE
-  .. .. .. .. ..$ re.form         : logi NA
-  .. .. .. .. ..$ na.action       : symbol na.exclude
-  .. .. .. .. ..$ type            : chr &quot;response&quot;
-  .. .. ..$ raw    :List of 4
-  .. .. .. ..$ pre : NULL
-  .. .. .. ..$ post: NULL
-  .. .. .. ..$ func: Named chr &quot;predict&quot;
-  .. .. .. .. ..- attr(*, &quot;names&quot;)= chr &quot;fun&quot;
-  .. .. .. ..$ args:List of 2
-  .. .. .. .. ..$ object : language object$fit
-  .. .. .. .. ..$ newdata: symbol new_data
-  ..$ engine  : chr &quot;lmer&quot;
-  ..- attr(*, &quot;class&quot;)= chr [1:2] &quot;linear_reg&quot; &quot;model_spec&quot;
- $ fit    :Formal class &#39;lmerMod&#39; [package &quot;lme4&quot;] with 13 slots
-  .. ..@ resp   :Reference class &#39;lmerResp&#39; [package &quot;lme4&quot;] with 9 fields
-  .. .. ..$ Ptr    :&lt;externalptr&gt; 
-  .. .. ..$ mu     : num [1:180] 292 303 313 324 334 ...
-  .. .. ..$ offset : num [1:180] 0 0 0 0 0 0 0 0 0 0 ...
-  .. .. ..$ sqrtXwt: num [1:180] 1 1 1 1 1 1 1 1 1 1 ...
-  .. .. ..$ sqrtrwt: num [1:180] 1 1 1 1 1 1 1 1 1 1 ...
-  .. .. ..$ weights: num [1:180] 1 1 1 1 1 1 1 1 1 1 ...
-  .. .. ..$ wtres  : num [1:180] -42.63 -43.95 -62.32 -2.15 22.79 ...
-  .. .. ..$ y      : num [1:180] 250 259 251 321 357 ...
-  .. .. ..$ REML   : int 2
-  .. .. ..and 28 methods, of which 14 are  possibly relevant:
-  .. .. ..  allInfo, copy#envRefClass, initialize, initialize#lmResp, initializePtr, initializePtr#lmResp,
-  .. .. ..  objective, ptr, ptr#lmResp, setOffset, setResp, setWeights, updateMu, wrss
-  .. ..@ Gp     : int [1:2] 0 18
-  .. ..@ call   : language lme4::lmer(formula = Reaction ~ Days + (1 | Subject), data = data)
-  .. ..@ frame  :&#39;data.frame&#39;:  180 obs. of  3 variables:
-  .. .. ..$ Reaction: num [1:180] 250 259 251 321 357 ...
-  .. .. ..$ Days    : num [1:180] 0 1 2 3 4 5 6 7 8 9 ...
-  .. .. ..$ Subject : Factor w/ 18 levels &quot;308&quot;,&quot;309&quot;,&quot;310&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
-  .. .. ..- attr(*, &quot;terms&quot;)=Classes &#39;terms&#39;, &#39;formula&#39;  language Reaction ~ Days + (1 + Subject)
-  .. .. .. .. ..- attr(*, &quot;variables&quot;)= language list(Reaction, Days, Subject)
-  .. .. .. .. ..- attr(*, &quot;factors&quot;)= int [1:3, 1:2] 0 1 0 0 0 1
-  .. .. .. .. .. ..- attr(*, &quot;dimnames&quot;)=List of 2
-  .. .. .. .. .. .. ..$ : chr [1:3] &quot;Reaction&quot; &quot;Days&quot; &quot;Subject&quot;
-  .. .. .. .. .. .. ..$ : chr [1:2] &quot;Days&quot; &quot;Subject&quot;
-  .. .. .. .. ..- attr(*, &quot;term.labels&quot;)= chr [1:2] &quot;Days&quot; &quot;Subject&quot;
-  .. .. .. .. ..- attr(*, &quot;order&quot;)= int [1:2] 1 1
-  .. .. .. .. ..- attr(*, &quot;intercept&quot;)= int 1
-  .. .. .. .. ..- attr(*, &quot;response&quot;)= int 1
-  .. .. .. .. ..- attr(*, &quot;.Environment&quot;)=&lt;environment: 0x0000028fe6c68970&gt; 
-  .. .. .. .. ..- attr(*, &quot;predvars&quot;)= language list(Reaction, Days, Subject)
-  .. .. .. .. ..- attr(*, &quot;dataClasses&quot;)= Named chr [1:3] &quot;numeric&quot; &quot;numeric&quot; &quot;factor&quot;
-  .. .. .. .. .. ..- attr(*, &quot;names&quot;)= chr [1:3] &quot;Reaction&quot; &quot;Days&quot; &quot;Subject&quot;
-  .. .. .. .. ..- attr(*, &quot;predvars.fixed&quot;)= language list(Reaction, Days)
-  .. .. .. .. ..- attr(*, &quot;varnames.fixed&quot;)= chr [1:2] &quot;Reaction&quot; &quot;Days&quot;
-  .. .. .. .. ..- attr(*, &quot;predvars.random&quot;)= language list(Reaction, Subject)
-  .. .. ..- attr(*, &quot;formula&quot;)=Class &#39;formula&#39;  language Reaction ~ Days + (1 | Subject)
-  .. .. .. .. ..- attr(*, &quot;.Environment&quot;)=&lt;environment: 0x0000028fe6c68970&gt; 
-  .. ..@ flist  :List of 1
-  .. .. ..$ Subject: Factor w/ 18 levels &quot;308&quot;,&quot;309&quot;,&quot;310&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
-  .. .. ..- attr(*, &quot;assign&quot;)= int 1
-  .. ..@ cnms   :List of 1
-  .. .. ..$ Subject: chr &quot;(Intercept)&quot;
-  .. ..@ lower  : num 0
-  .. ..@ theta  : num 1.2
-  .. ..@ beta   : num [1:2] 251.4 10.5
-  .. ..@ u      : num [1:18] 34.05 -64.99 -52.68 3.68 8.53 ...
-  .. ..@ devcomp:List of 2
-  .. .. ..$ cmp : Named num [1:10] 4.92e+01 9.77 1.56e+05 1.53e+04 1.71e+05 ...
-  .. .. .. ..- attr(*, &quot;names&quot;)= chr [1:10] &quot;ldL2&quot; &quot;ldRX2&quot; &quot;wrss&quot; &quot;ussq&quot; ...
-  .. .. ..$ dims: Named int [1:12] 180 180 2 178 18 1 1 1 0 2 ...
-  .. .. .. ..- attr(*, &quot;names&quot;)= chr [1:12] &quot;N&quot; &quot;n&quot; &quot;p&quot; &quot;nmp&quot; ...
-  .. ..@ pp     :Reference class &#39;merPredD&#39; [package &quot;lme4&quot;] with 18 fields
-  .. .. ..$ Lambdat:Formal class &#39;dgCMatrix&#39; [package &quot;Matrix&quot;] with 6 slots
-  .. .. .. .. ..@ i       : int [1:18] 0 1 2 3 4 5 6 7 8 9 ...
-  .. .. .. .. ..@ p       : int [1:19] 0 1 2 3 4 5 6 7 8 9 ...
-  .. .. .. .. ..@ Dim     : int [1:2] 18 18
-  .. .. .. .. ..@ Dimnames:List of 2
-  .. .. .. .. .. ..$ : NULL
-  .. .. .. .. .. ..$ : NULL
-  .. .. .. .. ..@ x       : num [1:18] 1.2 1.2 1.2 1.2 1.2 ...
-  .. .. .. .. ..@ factors : list()
-  .. .. ..$ LamtUt :Formal class &#39;dgCMatrix&#39; [package &quot;Matrix&quot;] with 6 slots
-  .. .. .. .. ..@ i       : int [1:180] 0 0 0 0 0 0 0 0 0 0 ...
-  .. .. .. .. ..@ p       : int [1:181] 0 1 2 3 4 5 6 7 8 9 ...
-  .. .. .. .. ..@ Dim     : int [1:2] 18 180
-  .. .. .. .. ..@ Dimnames:List of 2
-  .. .. .. .. .. ..$ : NULL
-  .. .. .. .. .. ..$ : chr [1:180] &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...
-  .. .. .. .. ..@ x       : num [1:180] 1.2 1.2 1.2 1.2 1.2 ...
-  .. .. .. .. ..@ factors : list()
-  .. .. ..$ Lind   : int [1:18] 1 1 1 1 1 1 1 1 1 1 ...
-  .. .. ..$ Ptr    :&lt;externalptr&gt; 
-  .. .. ..$ RZX    : num [1:18, 1:2] 3.06 3.06 3.06 3.06 3.06 ...
-  .. .. ..$ Ut     :Formal class &#39;dgCMatrix&#39; [package &quot;Matrix&quot;] with 6 slots
-  .. .. .. .. ..@ i       : int [1:180] 0 0 0 0 0 0 0 0 0 0 ...
-  .. .. .. .. ..@ p       : int [1:181] 0 1 2 3 4 5 6 7 8 9 ...
-  .. .. .. .. ..@ Dim     : int [1:2] 18 180
-  .. .. .. .. ..@ Dimnames:List of 2
-  .. .. .. .. .. ..$ : chr [1:18] &quot;308&quot; &quot;309&quot; &quot;310&quot; &quot;330&quot; ...
-  .. .. .. .. .. ..$ : chr [1:180] &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...
-  .. .. .. .. ..@ x       : num [1:180] 1 1 1 1 1 1 1 1 1 1 ...
-  .. .. .. .. ..@ factors : list()
-  .. .. ..$ Utr    : num [1:18] 4098 2578 2767 3632 3707 ...
-  .. .. ..$ V      : num [1:180, 1:2] 1 1 1 1 1 1 1 1 1 1 ...
-  .. .. ..$ VtV    : num [1:2, 1:2] 180 0 810 5130
-  .. .. ..$ Vtr    : num [1:2] 53731 257335
-  .. .. ..$ X      : num [1:180, 1:2] 1 1 1 1 1 1 1 1 1 1 ...
-  .. .. .. ..- attr(*, &quot;dimnames&quot;)=List of 2
-  .. .. .. .. ..$ : chr [1:180] &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...
-  .. .. .. .. ..$ : chr [1:2] &quot;(Intercept)&quot; &quot;Days&quot;
-  .. .. .. ..- attr(*, &quot;assign&quot;)= int [1:2] 0 1
-  .. .. .. ..- attr(*, &quot;msgScaleX&quot;)= chr(0) 
-  .. .. ..$ Xwts   : num [1:180] 1 1 1 1 1 1 1 1 1 1 ...
-  .. .. ..$ Zt     :Formal class &#39;dgCMatrix&#39; [package &quot;Matrix&quot;] with 6 slots
-  .. .. .. .. ..@ i       : int [1:180] 0 0 0 0 0 0 0 0 0 0 ...
-  .. .. .. .. ..@ p       : int [1:181] 0 1 2 3 4 5 6 7 8 9 ...
-  .. .. .. .. ..@ Dim     : int [1:2] 18 180
-  .. .. .. .. ..@ Dimnames:List of 2
-  .. .. .. .. .. ..$ : chr [1:18] &quot;308&quot; &quot;309&quot; &quot;310&quot; &quot;330&quot; ...
-  .. .. .. .. .. ..$ : chr [1:180] &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...
-  .. .. .. .. ..@ x       : num [1:180] 1 1 1 1 1 1 1 1 1 1 ...
-  .. .. .. .. ..@ factors : list()
-  .. .. ..$ beta0  : num [1:2] 0 0
-  .. .. ..$ delb   : num [1:2] 251.4 10.5
-  .. .. ..$ delu   : num [1:18] 34.05 -64.99 -52.68 3.68 8.53 ...
-  .. .. ..$ theta  : num 1.2
-  .. .. ..$ u0     : num [1:18] 0 0 0 0 0 0 0 0 0 0 ...
-  .. .. ..and 45 methods, of which 31 are  possibly relevant:
-  .. .. ..  b, beta, CcNumer, copy#envRefClass, initialize, initializePtr, installPars, L, ldL2, ldRX2, linPred,
-  .. .. ..  P, ptr, RX, RXdiag, RXi, setBeta0, setDelb, setDelu, setTheta, setZt, solve, solveU, sqrL, u, unsc,
-  .. .. ..  updateDecomp, updateL, updateLamtUt, updateRes, updateXwts
-  .. ..@ optinfo:List of 8
-  .. .. ..$ optimizer: chr &quot;nloptwrap&quot;
-  .. .. ..$ control  :List of 1
-  .. .. .. ..$ print_level: num 0
-  .. .. ..$ derivs   :List of 2
-  .. .. .. ..$ gradient: num -1.18e-07
-  .. .. .. ..$ Hessian : num [1, 1] 37.5
-  .. .. ..$ conv     :List of 2
-  .. .. .. ..$ opt : num 0
-  .. .. .. ..$ lme4: list()
-  .. .. ..$ feval    : int 13
-  .. .. ..$ message  : chr &quot;NLOPT_XTOL_REACHED: Optimization stopped because xtol_rel or xtol_abs (above) was reached.&quot;
-  .. .. ..$ warnings : list()
-  .. .. ..$ val      : num 1.2
- $ preproc:List of 1
-  ..$ y_var: chr &quot;Reaction&quot;
- $ elapsed: &#39;proc_time&#39; Named num [1:5] 0.03 0 0.03 NA NA
-  ..- attr(*, &quot;names&quot;)= chr [1:5] &quot;user.self&quot; &quot;sys.self&quot; &quot;elapsed&quot; &quot;user.child&quot; ...
- - attr(*, &quot;class&quot;)= chr [1:2] &quot;_lmerMod&quot; &quot;model_fit&quot;</code></pre>
-<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
