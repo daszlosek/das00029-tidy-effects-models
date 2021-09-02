@@ -77,15 +77,15 @@ predicted_df_fixed <- predicted_df_tidy %>%
                       dplyr::select(Subject,Days,cat,pred_fixed) %>% 
                       right_join(subject_cat)
 
-
-predicted_df_tidy_joined
 # predict(mixed_model_fit_tidy,new_data=expanded_df_tidy,type = "raw", opts=list(re.form=NA))
 
 
 ggplot(predicted_df_tidy) +
        facet_wrap(.~cat) + 
        geom_line(aes(x=Days,y=pred_fixed), size = 1) + 
-       geom_line(aes(x=Days,y=pred_rand,colour=Subject))
+       geom_line(aes(x=Days,y=pred_rand,colour=Subject)) +
+       scale_y_continuous("Predicted") + 
+       theme(legend.position = "none")
 
 
 ```
