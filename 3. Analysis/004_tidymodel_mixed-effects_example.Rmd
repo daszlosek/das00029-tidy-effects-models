@@ -1,6 +1,8 @@
 ---
 title: "R Notebook"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 A basic tutorial on mixed effects models using tidymodels and multilevelmod
@@ -16,6 +18,7 @@ In this tutorial I am going to go through how to create a mixed effects model in
 
 First lets load our packages of interest. For the ```multilevelmod``` package (as of the time of this blog post) you will need to install it through github using ```devtools::install_github()```. I ended up running into a little bit of a problem with an out of date ```Rcpp``` package. Deleting the folder manually and then re-installing ended up doig the trick. We will also be loading in one of R's most used mixed effects modeling packages,```lme4```, to get some data.
 ```{r}
+#install.packages("pacman")
 #load required packages
 pacman::p_load("tidyverse","lme4")
 
@@ -26,7 +29,7 @@ library("multilevelmod")
 ```
 
 
-Now lets load in the sleep study dataset from the ``lme4``` package. I am also going to create a fake categorical variable to use as a fixed effect in the model. 
+Now lets load in the sleep study dataset from the ```lme4``` package. I am also going to create a fake categorical variable to use as a fixed effect in the model. 
 
 ```{r}
 # load sleep study and create a fake category
@@ -43,13 +46,13 @@ The ```Tidymodels``` syntax requires that we set the "engine" for the type of mo
 
 ```{r}
 
-# set engine to lme4
+# set engine for mixed effects models
 mixed_model_spec <- linear_reg() %>% set_engine("lmer")
 
 ```
 
 
-Next we can build the model using ```Reaction``` as our dependent variables, ```Days``` and ```cat``` as our fixed effects and ```Subject``` as our random effect. The random effect syntax following that of the ```lme4``` package 
+Next we can build the model using ```Reaction``` as our dependent variable, ```Days``` and ```cat``` as our fixed effects and ```Subject``` as our random effect. The random effect syntax following that of the ```lme4``` package using ```(1|Subject)``` to define ```Subject``` as the random intercept.  
 
 ```{r}
 
@@ -62,22 +65,52 @@ mixed_model_fit_tidy
 
 
 
+Now that we have created our model. Lets take a look at the predicted probabilities. To do this, we will create a data frame with all the different combinations of our fixed and random effects.
+
 ```{r}
 
 expanded_df_tidy <- with(sleepstudy,
                     data.frame(
                       expand.grid(Subject=levels(Subject),
-                                  cat = unique(cat),
+                                  #cat = unique(cat),
                                   Days=seq(min(Days),max(Days),length=51))))
 
+expanded_df_tidy <- sleepstudy %>% tidyr::expand(Subject,Days,cat)
+
+expanded_df_tidy
 ```
 
 
 
+We can use this data frame and the ```predict()``` to get the predictions from our model. 
+```{r}
+predicted_df_tidy <- mutate(expanded_df_tidy,
+                            pred = predict(mixed_model_fit_tidy,
+                                           new_data=expanded_df_tidy, 
+                                           type = "raw", opts=list(re.form=NA)))
+
+
+predicted_df_tidy
+
+
+```
+
+When looking at the prediction output, notice that we are getting the same predictions for each subject. The ```predict``` function is currently giving us predictions for the fixed effects. If were were to run this same code using ```predict()``` with ```lme4``` we would get the predictions for the random effects for each ```Subject``. 
+
+
+What is going on here? The issue is that ```multilevelmod``` package internally sets the default for prediction to ```re.form = NA;```. In ```lme4``` the default for predictions is ```re.form = NULL``` (i.e. include all random effects in the prediction). 
+
 ```{r}
 
-# the issue is that multilevelmod internally sets the default for prediction to re.form = NA; the code above resets it to re.form = NULL (which is the lme4 default, i.e. include all random effects in the prediction)
+knitr::include_graphics(here::here("2. Data", "tidymodel_git_comment.PNG"))
 
+```
+
+
+We can include  ```re.form = NULL``` in the ```predict()``` function by using the ```opts``` argument. 
+
+```{r}
+#update predictions
 predicted_df_tidy <- mutate(expanded_df_tidy,
                             # get random predictions
                             pred_rand = predict(mixed_model_fit_tidy,
@@ -88,19 +121,14 @@ predicted_df_tidy <- mutate(expanded_df_tidy,
                                                 new_data=expanded_df_tidy, 
                                                 type = "raw", opts=list(re.form=NA)))
 
+predicted_df_tidy
+
+```
 
 
-subject_cat <- sleepstudy %>% dplyr::select(Subject, cat) %>% distinct(.)
+Now that we have both the predictions for the fixed and random effects we can plot them using ```ggplot2```! 
 
-subject_cat
-
-predicted_df_fixed <- predicted_df_tidy %>% 
-                      dplyr::select(Subject,Days,cat,pred_fixed) %>% 
-                      right_join(subject_cat)
-
-# predict(mixed_model_fit_tidy,new_data=expanded_df_tidy,type = "raw", opts=list(re.form=NA))
-
-
+```{r}
 ggplot(predicted_df_tidy) +
        facet_wrap(.~cat) + 
        geom_line(aes(x=Days,y=pred_fixed), size = 1) + 
