@@ -3,30 +3,45 @@ title: "R Notebook"
 output: html_notebook
 ---
 
+A basic tutorial on mixed effects models using tidymodels and multilevelmod
 
+
+In R there are a ton of packages available to regression models including mixed effects model but one of the biggest issues is the vast difference in syntax needed for each of the modeling packages. Tidymodels was developed to solve this problem with the goal of having similar syntax style to the other tidyverse packages. Tidymodels itself is a "meta-package" consisting of a bunch {https://tidymodels.tidymodels.org/} of packages for modeling and statistical analysis with a focus on using the design philosophy of the tidyverse packages.  
+
+One of the current packages in development (as of this blog post) is the multilevelmod package for hierarchical modeling. 
+
+In this tutorial I am going to go through how to create a mixed effects model in ```R``` using the ```tidymodels``` and ```multilevelmod``` packages and how to plot the random intercepts using ```ggplot2```. This blog post is just focused on using tidymodels and is not an indept overview of what mixed effects models are or how to use them. 
+
+
+
+First lets load our packages of interest. For the ```multilevelmod``` package you will need to install it through github using ```devtools::install_github()```. We will also be loading in one of R's most used mixed effects modeling packages,```lme4```, some data.
 ```{r}
-
+#load required packages
 pacman::p_load("tidyverse","lme4")
 
-library(multilevelmod)
+# install multilevelmod
+#devtools::install_github("tidymodels/multilevelmod")
 
+library("multilevelmod")
+```
+
+
+Now lets load in the sleep study dataset from the ``lme4``` package. I am also going to create a fake categorical variable to use as an example 
+
+```{r}
+# load sleep study and create a fake category
+set.seed(666) #\m/ rock on
 sleepstudy <- lme4::sleepstudy %>% group_by(Subject) %>% 
-              # create a new random category just for plotting
+              # creating a new random category with 3 levels to explore group effects
               mutate(cat = sample( LETTERS[1:3], 1, replace=TRUE, prob=c(0.25, 0.50, 0.25))) %>%
               ungroup()
-
-head(sleepstudy,30)
-
-
-subject_cat <- sleepstudy %>% dplyr::select(Subject, cat) %>% distinct(.)
-
-subject_cat
 
 ```
 
 
+the tidymodels syntax requires that we set the "engine" for the type of model that we want to use. It is kind of like picking the type of car to use in MarioKart. You want to use the right engine for the right type of data. Since we are interested in looking at repeated measures data using a mixed effects model we will be using the "lmer" engine. 
 
-
+Next we are going to set the engine to use the 
 ```{r}
 
 # set engine to lme4
@@ -71,7 +86,9 @@ predicted_df_tidy <- mutate(expanded_df_tidy,
 
 
 
+subject_cat <- sleepstudy %>% dplyr::select(Subject, cat) %>% distinct(.)
 
+subject_cat
 
 predicted_df_fixed <- predicted_df_tidy %>% 
                       dplyr::select(Subject,Days,cat,pred_fixed) %>% 
