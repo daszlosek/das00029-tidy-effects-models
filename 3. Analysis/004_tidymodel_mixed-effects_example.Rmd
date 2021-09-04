@@ -14,7 +14,7 @@ In this tutorial I am going to go through how to create a mixed effects model in
 
 
 
-First lets load our packages of interest. For the ```multilevelmod``` package you will need to install it through github using ```devtools::install_github()```. We will also be loading in one of R's most used mixed effects modeling packages,```lme4```, some data.
+First lets load our packages of interest. For the ```multilevelmod``` package (as of the time of this blog post) you will need to install it through github using ```devtools::install_github()```. I ended up running into a little bit of a problem with an out of date ```Rcpp``` package. Deleting the folder manually and then re-installing ended up doig the trick. We will also be loading in one of R's most used mixed effects modeling packages,```lme4```, to get some data.
 ```{r}
 #load required packages
 pacman::p_load("tidyverse","lme4")
@@ -26,7 +26,7 @@ library("multilevelmod")
 ```
 
 
-Now lets load in the sleep study dataset from the ``lme4``` package. I am also going to create a fake categorical variable to use as an example 
+Now lets load in the sleep study dataset from the ``lme4``` package. I am also going to create a fake categorical variable to use as a fixed effect in the model. 
 
 ```{r}
 # load sleep study and create a fake category
@@ -39,18 +39,22 @@ sleepstudy <- lme4::sleepstudy %>% group_by(Subject) %>%
 ```
 
 
-the tidymodels syntax requires that we set the "engine" for the type of model that we want to use. It is kind of like picking the type of car to use in MarioKart. You want to use the right engine for the right type of data. Since we are interested in looking at repeated measures data using a mixed effects model we will be using the "lmer" engine. 
+The ```Tidymodels``` syntax requires that we set the "engine" for the type of model that we want to use. It is kind of like picking the type of car to use in MarioKart. You want to use the right engine for the right type of data. Since we are interested in looking at repeated measures data using a mixed effects model we will be using the "lmer" engine. We can set up the engine with the following code:
 
-Next we are going to set the engine to use the 
 ```{r}
 
 # set engine to lme4
 mixed_model_spec <- linear_reg() %>% set_engine("lmer")
 
+```
+
+
+Next we can build the model using ```Reaction``` as our dependent variables, ```Days``` and ```cat``` as our fixed effects and ```Subject``` as our random effect. The random effect syntax following that of the ```lme4``` package 
+
+```{r}
+
 # create model
-mixed_model_fit_tidy <- 
-  mixed_model_spec %>% 
-  fit(Reaction ~ Days + cat + (1 | Subject), data = sleepstudy)
+mixed_model_fit_tidy <- mixed_model_spec %>% fit(Reaction ~ Days + cat + (1 | Subject), data = sleepstudy)
 
 mixed_model_fit_tidy
 
